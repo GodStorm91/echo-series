@@ -1,5 +1,7 @@
 <?php
 use App\Events\OrderStatusUpdate;
+use App\Events\TaskCreated;
+use App\Task;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -28,7 +30,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('update', function(){
-	OrderStatusUpdate::dispatch(new Order(1));
+Route::get('/tasks', function(){
+	return Task::latest()->pluck('body');
+});
+
+Route::post('/tasks', function(){
+	$task = Task::forceCreate(request(['body']));
+	event(new TaskCreated($task));
 
 });
+
+// Route::get('update', function(){
+// 	OrderStatusUpdate::dispatch(new Order(1));
+
+// });
