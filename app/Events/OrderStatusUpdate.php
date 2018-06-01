@@ -10,9 +10,11 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class OrderStatusUpdate
+class OrderStatusUpdate implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $foo = "bar";
 
     /**
      * Create a new event instance.
@@ -31,6 +33,7 @@ class OrderStatusUpdate
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new Channel('orders');
+        // return new PrivateChannel('channel-name');
     }
 }
