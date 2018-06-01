@@ -11,7 +11,24 @@ use App\Events\OrderStatusUpdate;
 |
 */
 
+/**
+ * 
+ */
+class Order
+{
+	public $id;
+	
+	function __construct($id)
+	{
+		$this->id = $id;
+	}
+}
+
 Route::get('/', function () {
-	OrderStatusUpdate::dispatch();
     return view('welcome');
+});
+
+Route::get('update', function(){
+	OrderStatusUpdate::dispatch(new Order(1));
+
 });
