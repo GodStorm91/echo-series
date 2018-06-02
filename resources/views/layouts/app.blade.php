@@ -19,6 +19,9 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <script>
+        window.App = <?= json_encode(['user' => auth()->user()]); ?>
+    </script>
 </head>
 <body>
     <div id="app">

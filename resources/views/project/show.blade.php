@@ -9,7 +9,9 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
+        <script>
+        window.App = <?= json_encode(['user' => auth()->user()]); ?>
+    </script>
         <!-- Styles -->
         <style>
             html, body {
