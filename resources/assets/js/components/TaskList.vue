@@ -17,7 +17,8 @@
             }
         },
         created() {
-            window.Echo.channel('tasks' + this.project.id).listen('TaskCreated', e => {
+            window.Echo.private
+            ('tasks' + this.project.id).listen('TaskCreated', e => {
                 this.project.tasks.push(e.task);
             });
         },

@@ -48,3 +48,7 @@ Route::post('/api/projects/{project}/tasks', function (Project $project){
 // 	OrderStatusUpdate::dispatch(new Order(1));
 
 // });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
