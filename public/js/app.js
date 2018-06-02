@@ -52457,28 +52457,30 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    props: ['dataProject'],
     data: function data() {
         return {
-            tasks: [],
+            project: this.dataProject,
             newTask: ''
         };
     },
     created: function created() {
         var _this = this;
 
-        axios.get('/tasks').then(function (response) {
-            _this.tasks = response.data;
-        });
-        window.Echo.channel('tasks').listen('TaskCreated', function (e) {
-            _this.tasks.push(e.task.body);
+        window.Echo.channel('tasks' + this.project.id).listen('TaskCreated', function (e) {
+            _this.project.tasks.push(e.task);
         });
     },
 
 
     methods: {
-        addTask: function addTask() {
-            axios.post('/tasks', { body: this.newTask });
-            this.tasks.push(this.newTask);
+        save: function save() {
+            axios.post('/api/projects/' + this.project.id + '/tasks', { body: this.newTask }).then(function (response) {
+                return response.data;
+            }).then(this.addTask);
+        },
+        addTask: function addTask(task) {
+            this.project.tasks.push(task);
             this.newTask = '';
         }
     }
@@ -52495,8 +52497,8 @@ var render = function() {
   return _c("div", [
     _c(
       "ul",
-      _vm._l(_vm.tasks, function(task) {
-        return _c("li", { domProps: { textContent: _vm._s(task) } })
+      _vm._l(_vm.dataProject.tasks, function(task) {
+        return _c("li", { domProps: { textContent: _vm._s(task.body) } })
       })
     ),
     _vm._v(" "),
@@ -52512,7 +52514,7 @@ var render = function() {
       attrs: { type: "text" },
       domProps: { value: _vm.newTask },
       on: {
-        blur: _vm.addTask,
+        blur: _vm.save,
         input: function($event) {
           if ($event.target.composing) {
             return

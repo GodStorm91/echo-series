@@ -1,31 +1,35 @@
 <template>
 <div>
     <ul>
-        <li v-for="task in tasks" v-text="task"></li>
+        <li v-for="task in dataProject.tasks" v-text="task.body"></li>
     </ul>
 
-    <input type="text" v-model="newTask" @blur="addTask" />
+    <input type="text" v-model="newTask" @blur="save" />
 </div>
 </template>
 <script>
     export default {
+        props: ['dataProject'],
         data() {
             return {
-                tasks: [],
+                project: this.dataProject,
                 newTask: '',
             }
         },
         created() {
-            axios.get('/tasks').then(response => { this.tasks = response.data});
-            window.Echo.channel('tasks').listen('TaskCreated', e => {
-                this.tasks.push(e.task.body);
+            window.Echo.channel('tasks' + this.project.id).listen('TaskCreated', e => {
+                this.project.tasks.push(e.task);
             });
         },
 
         methods:{
-            addTask() {
-                axios.post('/tasks', {body: this.newTask});
-                this.tasks.push(this.newTask);
+            save() {
+                axios.post(`/api/projects/${this.project.id}/tasks`, {body: this.newTask})
+                .then(response => response.data)
+                .then(this.addTask);
+            },
+            addTask(task) {
+                this.project.tasks.push(task);
                 this.newTask = '';
             }
         }
