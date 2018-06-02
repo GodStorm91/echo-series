@@ -11,6 +11,7 @@
 |
 */
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('tasks{project}', function ($user, \App\Project $project) {
+    // return (int) $user->id === (int) $id;
+    return $project->participants->contains($user);
 });
