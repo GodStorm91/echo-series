@@ -1,11 +1,23 @@
 <template>
 <div>
-    <ul>
-        <li v-for="task in dataProject.tasks" v-text="task.body"></li>
-    </ul>
+    <div class="row">
+        <div class="col-md-8">
+            <h3 v-text="dataProject.project_name"></h3>
 
-    <input type="text" v-model="newTask" @blur="save" @keydown="tagPeers" />
-    <span v-if="activePeer" v-text="activePeer.name + ' is typing...' "></span>
+            <ul>
+                <li v-for="task in dataProject.tasks" v-text="task.body"></li>
+            </ul>
+
+            <input type="text" v-model="newTask" @blur="save" @keydown="tagPeers" />
+            <span v-if="activePeer" v-text="activePeer.name + ' is typing...' "></span>
+        </div>
+        <div class="col-md-4">
+            <h4>Active participants</h4>
+            <ul>
+                <li v-for="participant in participants" v-text="participant.name"></li>
+            </ul>
+        </div>
+    </div>
 </div>
 </template>
 <script>
@@ -15,23 +27,33 @@
             return {
                 project: this.dataProject,
                 newTask: '',
+                participants: [],
                 activePeer: false,
                 typingTimer: false,
             }
         },
+        computed:{
+            channel(){
+                return window.Echo.join('tasks' + this.project.id);
+            }
+        },
         created() {
-            window.Echo.private
-            ('tasks' + this.project.id).listen('TaskCreated', e => {
+            this.channel
+            .here(users => {
+                this.participants = users;
+            })
+            .joining(user => {
+                this.participants.push(user);
+            })
+            .leaving(user => {
+                this.participants.splice(this.participants.indexOf(user), 1);
+            })
+            .listen('TaskCreated', e => {
                 this.project.tasks.push(e.task);
             })
             .listenForWhisper("typing", this.flashActivePeer)
         },
 
-        computed:{
-            channel(){
-                return window.Echo.private('tasks' + this.project.id);
-            }
-        },
         methods:{
             flashActivePeer(e) {
                 this.activePeer = e;

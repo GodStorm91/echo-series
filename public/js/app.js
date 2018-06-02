@@ -52456,6 +52456,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['dataProject'],
@@ -52463,24 +52475,32 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             project: this.dataProject,
             newTask: '',
+            participants: [],
             activePeer: false,
             typingTimer: false
         };
     },
+
+    computed: {
+        channel: function channel() {
+            return window.Echo.join('tasks' + this.project.id);
+        }
+    },
     created: function created() {
         var _this = this;
 
-        window.Echo.private('tasks' + this.project.id).listen('TaskCreated', function (e) {
+        this.channel.here(function (users) {
+            _this.participants = users;
+        }).joining(function (user) {
+            _this.participants.push(user);
+        }).leaving(function (user) {
+            _this.participants.splice(_this.participants.indexOf(user), 1);
+        }).listen('TaskCreated', function (e) {
             _this.project.tasks.push(e.task);
         }).listenForWhisper("typing", this.flashActivePeer);
     },
 
 
-    computed: {
-        channel: function channel() {
-            return window.Echo.private('tasks' + this.project.id);
-        }
-    },
     methods: {
         flashActivePeer: function flashActivePeer(e) {
             var _this2 = this;
@@ -52520,43 +52540,64 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c(
-      "ul",
-      _vm._l(_vm.dataProject.tasks, function(task) {
-        return _c("li", { domProps: { textContent: _vm._s(task.body) } })
-      })
-    ),
-    _vm._v(" "),
-    _c("input", {
-      directives: [
-        {
-          name: "model",
-          rawName: "v-model",
-          value: _vm.newTask,
-          expression: "newTask"
-        }
-      ],
-      attrs: { type: "text" },
-      domProps: { value: _vm.newTask },
-      on: {
-        blur: _vm.save,
-        keydown: _vm.tagPeers,
-        input: function($event) {
-          if ($event.target.composing) {
-            return
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-8" }, [
+        _c("h3", {
+          domProps: { textContent: _vm._s(_vm.dataProject.project_name) }
+        }),
+        _vm._v(" "),
+        _c(
+          "ul",
+          _vm._l(_vm.dataProject.tasks, function(task) {
+            return _c("li", { domProps: { textContent: _vm._s(task.body) } })
+          })
+        ),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.newTask,
+              expression: "newTask"
+            }
+          ],
+          attrs: { type: "text" },
+          domProps: { value: _vm.newTask },
+          on: {
+            blur: _vm.save,
+            keydown: _vm.tagPeers,
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.newTask = $event.target.value
+            }
           }
-          _vm.newTask = $event.target.value
-        }
-      }
-    }),
-    _vm._v(" "),
-    _vm.activePeer
-      ? _c("span", {
-          domProps: {
-            textContent: _vm._s(_vm.activePeer.name + " is typing...")
-          }
-        })
-      : _vm._e()
+        }),
+        _vm._v(" "),
+        _vm.activePeer
+          ? _c("span", {
+              domProps: {
+                textContent: _vm._s(_vm.activePeer.name + " is typing...")
+              }
+            })
+          : _vm._e()
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-4" }, [
+        _c("h4", [_vm._v("Active participants")]),
+        _vm._v(" "),
+        _c(
+          "ul",
+          _vm._l(_vm.participants, function(participant) {
+            return _c("li", {
+              domProps: { textContent: _vm._s(participant.name) }
+            })
+          })
+        )
+      ])
+    ])
   ])
 }
 var staticRenderFns = []
